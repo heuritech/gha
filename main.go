@@ -527,7 +527,11 @@ func (m *Gha) WithExistingPipeline(name string, pipeline *Pipeline) *Gha {
 			return m
 		}
 	}
-	return nil
+
+	// Add the pipeline if it's not in the list
+	m.Pipelines = append(m.Pipelines, pipeline)
+
+	return m
 }
 
 // A Dagger pipeline to be called from a Github Actions configuration
@@ -672,6 +676,7 @@ func (p *Pipeline) asWorkflow() Workflow {
 				Permissions:    p.JobPermissions(),
 				Steps:          steps,
 				TimeoutMinutes: p.Settings.TimeoutMinutes,
+				Strategy:       &p.Strategy,
 				Outputs: map[string]string{
 					"stdout": "${{ steps.exec.outputs.stdout }}",
 					"stderr": "${{ steps.exec.outputs.stderr }}",
